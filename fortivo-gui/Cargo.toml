@@ -1,0 +1,21 @@
+[package]
+name = "fortivo-gui"
+version = "1.0.0"
+description = "Fortivo's GUI"
+authors = ["itsgerliz"]
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "fortivo_gui_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.2.0" }
+
+[dependencies]
+fortivo-core = { version = "1", path = "../fortivo-core" }
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
