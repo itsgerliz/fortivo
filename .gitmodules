@@ -1,10 +1,8 @@
 [submodule "fortivo-website"]
 	path = fortivo-website
 	url = https://github.com/itsgerliz/fortivo-website.git
+	branch = dev
 [submodule "fortivo-engine"]
 	path = fortivo-engine
 	url = https://github.com/itsgerliz/fortivo-engine.git
-[submodule "fortivo-website/"]
-	branch = dev
-[submodule "fortivo-engine/"]
 	branch = dev
