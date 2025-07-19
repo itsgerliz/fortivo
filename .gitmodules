@@ -4,3 +4,7 @@
 [submodule "fortivo-engine"]
 	path = fortivo-engine
 	url = https://github.com/itsgerliz/fortivo-engine.git
+[submodule "fortivo-website/"]
+	branch = dev
+[submodule "fortivo-engine/"]
+	branch = dev
