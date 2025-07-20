@@ -1,12 +1,12 @@
 [submodule "fortivo-website"]
 	path = fortivo-website
 	url = https://github.com/itsgerliz/fortivo-website.git
-	branch = dev
+	branch = master
 [submodule "fortivo-engine"]
 	path = fortivo-engine
 	url = https://github.com/itsgerliz/fortivo-engine.git
-	branch = dev
+	branch = master
 [submodule "html-includer"]
 	path = html-includer
 	url = https://github.com/itsgerliz/html-includer.git
-	branch = dev
+	branch = master
