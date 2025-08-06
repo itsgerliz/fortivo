@@ -1,14 +1,4 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+//! This lib is aimed to serve as the engine behind the main Fortivo app\
+//! Nevertheless, it can be used by any other Rust app, and even apps made in other langs with a thin wrapper
+pub mod error;
+mod fs;
