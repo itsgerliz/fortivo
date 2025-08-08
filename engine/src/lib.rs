@@ -3,6 +3,6 @@
 
 // Public modules
 pub mod error;
+pub mod fs;
 
 // Private modules
-mod fs;
