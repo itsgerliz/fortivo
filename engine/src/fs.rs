@@ -1,4 +1,4 @@
-use std::{fs::{self, File}, path::{Path, PathBuf}};
+use std::{fs::{self, File, OpenOptions}, path::{Path, PathBuf}};
 use crate::error::FortivoResult;
 
 pub struct Arca {
@@ -16,6 +16,26 @@ impl Arca {
 				is_dirty: false
 			}
 		)
+	}
+
+	pub fn open<P: AsRef<Path>>(pathname: P, read_write: bool) -> FortivoResult<Self> {
+		if read_write {
+			Ok(
+				Arca {
+					handle: OpenOptions::new().read(true).write(true).open(&pathname)?,
+					path: pathname.as_ref().to_path_buf(),
+					is_dirty: false
+				}
+			)
+		} else {
+			Ok(
+				Arca {
+					handle: File::open(&pathname)?,
+					path: pathname.as_ref().to_path_buf(),
+					is_dirty: false
+				}
+			)
+		}
 	}
 
 	pub fn delete(self) -> FortivoResult<()> {
