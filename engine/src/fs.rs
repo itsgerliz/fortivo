@@ -22,3 +22,7 @@ pub fn delete_arca(arca: Arca) -> FortivoResult<()> {
 		fs::remove_file(arca.path)?
 	)
 }
+
+pub fn check_dirty(arca: &Arca) -> bool {
+	arca.is_dirty
+}
