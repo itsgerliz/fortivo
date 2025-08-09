@@ -7,22 +7,22 @@ pub struct Arca {
 	is_dirty: bool
 }
 
-pub fn new_arca<P: AsRef<Path>>(pathname: P) -> FortivoResult<Arca> {
-	Ok(
-		Arca {
-			handle: File::create_new(&pathname)?,
-			path: pathname.as_ref().to_path_buf(),
-			is_dirty: false
-		}
-	)
-}
+impl Arca {
+	pub fn new<P: AsRef<Path>>(pathname: P) -> FortivoResult<Self> {
+		Ok(
+			Arca {
+				handle: File::create_new(&pathname)?,
+				path: pathname.as_ref().to_path_buf(),
+				is_dirty: false
+			}
+		)
+	}
 
-pub fn delete_arca(arca: Arca) -> FortivoResult<()> {
-	Ok(
-		fs::remove_file(arca.path)?
-	)
-}
+	pub fn delete(self) -> FortivoResult<()> {
+		Ok(fs::remove_file(self.path)?)
+	}
 
-pub fn check_dirty(arca: &Arca) -> bool {
-	arca.is_dirty
+	pub fn check_dirty(&self) -> bool {
+		self.is_dirty
+	}
 }
