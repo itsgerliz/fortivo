@@ -16,8 +16,6 @@ This software is licensed under the BSD-3-Clause license
 - Read it locally in file ``LICENSE``
 - Or online [here](https://github.com/itsgerliz/fortivo/blob/master/LICENSE)
 
----
-
 ## Considerations
 - [1]: Does not include software libraries needed to build or run Fortivo itself
 
