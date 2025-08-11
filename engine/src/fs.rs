@@ -46,3 +46,11 @@ impl Arca {
 		self.is_dirty
 	}
 }
+
+pub struct ArcaHeader {
+
+}
+
+pub struct Arcanum {
+
+}

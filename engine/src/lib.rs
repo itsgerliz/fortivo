@@ -4,5 +4,6 @@
 // Public modules
 pub mod error;
 pub mod fs;
+pub mod serde;
 
 // Private modules
