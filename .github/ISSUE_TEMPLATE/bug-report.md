@@ -3,7 +3,7 @@ name: Bug report
 about: Report a bug
 title: "(engine/cli/gui): This is a bug"
 labels: bug
-assignees: ''
+assignees: 'itsgerliz'
 
 ---
 
