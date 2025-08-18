@@ -1,5 +1,4 @@
-//! This lib is aimed to serve as the engine behind the main Fortivo app\
-//! Nevertheless, it can be used by any other app
+//! This lib is aimed to serve as the engine behind Fortivo, both its CLI and GUI frontends\
 
 // Public modules
 pub mod error;
