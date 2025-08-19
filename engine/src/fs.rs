@@ -1,4 +1,4 @@
-use std::{fs::{self, File, OpenOptions}, path::{Path, PathBuf}};
+use std::{fs::{self, File, OpenOptions}, io::{self, Read, Write}, path::{Path, PathBuf}};
 use crate::error::FortivoResult;
 
 pub struct Arca {
@@ -44,5 +44,21 @@ impl Arca {
 
 	pub fn check_dirty(&self) -> bool {
 		self.is_dirty
+	}
+}
+
+impl Read for Arca {
+	fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+		self.handle.read(buf)
+	}
+}
+
+impl Write for Arca {
+	fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+		self.handle.write(buf)
+	}
+
+	fn flush(&mut self) -> io::Result<()> {
+		self.handle.flush()
 	}
 }
