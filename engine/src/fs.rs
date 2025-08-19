@@ -1,38 +1,59 @@
 use std::{fs::{self, File, OpenOptions}, io::{self, Read, Write}, path::{Path, PathBuf}};
+use serde::{Serialize, Deserialize};
 use crate::error::FortivoResult;
 
 pub struct Arca {
 	handle: File,
 	path: PathBuf,
-	is_dirty: bool
+	is_dirty: bool,
+	header: ArcaHeader
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ArcaHeader {
+
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ArcaObject {
+
 }
 
 impl Arca {
-	pub fn new<P: AsRef<Path>>(pathname: P) -> FortivoResult<Self> {
+	pub fn new<P: AsRef<Path>>(pathname: P, new_header: ArcaHeader) -> FortivoResult<Self> {
 		Ok(
 			Arca {
 				handle: File::create_new(&pathname)?,
 				path: pathname.as_ref().to_path_buf(),
-				is_dirty: false
+				is_dirty: false,
+				header: new_header
 			}
 		)
 	}
 
 	pub fn open<P: AsRef<Path>>(pathname: P, read_write: bool) -> FortivoResult<Self> {
 		if read_write {
+			let file_handle = OpenOptions::new().read(true).write(true).open(&pathname)?;
+			let new_header = ArcaHeader { }; //TODO
+
 			Ok(
 				Arca {
-					handle: OpenOptions::new().read(true).write(true).open(&pathname)?,
+					handle: file_handle,
 					path: pathname.as_ref().to_path_buf(),
-					is_dirty: false
+					is_dirty: false,
+					header: new_header
 				}
 			)
 		} else {
+			let file_handle = File::open(&pathname)?;
+			let new_header = ArcaHeader { }; //TODO
+
 			Ok(
 				Arca {
-					handle: File::open(&pathname)?,
+					handle: file_handle,
 					path: pathname.as_ref().to_path_buf(),
-					is_dirty: false
+					is_dirty: false,
+					header: new_header
 				}
 			)
 		}
@@ -44,6 +65,10 @@ impl Arca {
 
 	pub fn check_dirty(&self) -> bool {
 		self.is_dirty
+	}
+
+	pub fn write_header(&self) -> FortivoResult<usize> {
+		todo!()
 	}
 }
 
