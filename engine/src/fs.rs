@@ -11,7 +11,11 @@ pub struct Arca {
 
 #[derive(Serialize, Deserialize)]
 pub struct ArcaHeader {
-
+	name: Vec<u8>, // Check at runtime this does not go beyond 512 bytes
+	creation_date: u64,
+	modification_date: u64,
+	object_count: u64,
+	flags: u16
 }
 
 #[derive(Serialize, Deserialize)]
@@ -65,10 +69,6 @@ impl Arca {
 
 	pub fn check_dirty(&self) -> bool {
 		self.is_dirty
-	}
-
-	pub fn write_header(&self) -> FortivoResult<usize> {
-		todo!()
 	}
 }
 
