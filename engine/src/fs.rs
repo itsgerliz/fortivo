@@ -1,6 +1,6 @@
-use std::{fs::{self, File, OpenOptions}, io::{self, Read, Write}, path::{Path, PathBuf}};
+use std::{fs::File, path::PathBuf, time::{SystemTime, UNIX_EPOCH}};
 use serde::{Serialize, Deserialize};
-use crate::error::FortivoResult;
+use crate::error::{FortivoError, FortivoResult};
 
 pub struct Arca {
 	handle: File,
@@ -11,79 +11,41 @@ pub struct Arca {
 
 #[derive(Serialize, Deserialize)]
 pub struct ArcaHeader {
-	name: Vec<u8>, // Check at runtime this does not go beyond 512 bytes
+	magic_byte: u8,
+	name_length: u16,
+	name: Vec<u8>, // This should not be bigger than 512 elements (bytes)
 	creation_date: u64,
 	modification_date: u64,
 	object_count: u64,
 	flags: u16
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct ArcaObject {
+impl ArcaHeader {
+	pub fn new<N: AsRef<str>>(name: N) -> FortivoResult<Self> {
+		let name_str = name.as_ref();
+		let name_len = name_str.len();
+		let now = SystemTime::now()
+			.duration_since(UNIX_EPOCH)?
+			.as_secs();
 
-}
+		if name_len > 512 {
+			return Err(FortivoError::ArcaNameTooLong)
+		}
 
-impl Arca {
-	pub fn new<P: AsRef<Path>>(pathname: P, new_header: ArcaHeader) -> FortivoResult<Self> {
 		Ok(
-			Arca {
-				handle: File::create_new(&pathname)?,
-				path: pathname.as_ref().to_path_buf(),
-				is_dirty: false,
-				header: new_header
+			ArcaHeader {
+				magic_byte: 0xCF,
+				name_length: name_len as u16,
+				name: name_str.as_bytes().to_vec(),
+				creation_date: now,
+				modification_date: now,
+				object_count: 0,
+				flags: 0
 			}
 		)
 	}
-
-	pub fn open<P: AsRef<Path>>(pathname: P, read_write: bool) -> FortivoResult<Self> {
-		if read_write {
-			let file_handle = OpenOptions::new().read(true).write(true).open(&pathname)?;
-			let new_header = ArcaHeader { }; //TODO
-
-			Ok(
-				Arca {
-					handle: file_handle,
-					path: pathname.as_ref().to_path_buf(),
-					is_dirty: false,
-					header: new_header
-				}
-			)
-		} else {
-			let file_handle = File::open(&pathname)?;
-			let new_header = ArcaHeader { }; //TODO
-
-			Ok(
-				Arca {
-					handle: file_handle,
-					path: pathname.as_ref().to_path_buf(),
-					is_dirty: false,
-					header: new_header
-				}
-			)
-		}
-	}
-
-	pub fn delete(self) -> FortivoResult<()> {
-		Ok(fs::remove_file(self.path)?)
-	}
-
-	pub fn check_dirty(&self) -> bool {
-		self.is_dirty
-	}
 }
 
-impl Read for Arca {
-	fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-		self.handle.read(buf)
-	}
-}
-
-impl Write for Arca {
-	fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-		self.handle.write(buf)
-	}
-
-	fn flush(&mut self) -> io::Result<()> {
-		self.handle.flush()
-	}
+pub struct ArcaObject {
+	// TODO
 }
