@@ -1,8 +1,5 @@
 //! This lib is aimed to serve as the engine behind Fortivo, both its CLI and GUI frontends
 
-// Public modules
+pub mod arca;
 pub mod error;
-pub mod fs;
-pub mod serde;
-
-// Private modules
+mod serde;
