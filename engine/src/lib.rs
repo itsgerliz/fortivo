@@ -2,4 +2,3 @@
 
 pub mod arca;
 pub mod error;
-mod serde;
