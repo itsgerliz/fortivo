@@ -1,4 +1,4 @@
-//! This lib is aimed to serve as the engine behind Fortivo, both its CLI and GUI frontends
+//! The engine that makes Fortivo work
 
 pub mod arca;
 pub mod error;

@@ -9,7 +9,7 @@ pub(crate) type FortivoResult<T> = Result<T, FortivoError>;
 #[derive(Error, Debug)]
 pub enum FortivoError {
     #[error("Encountered an error trying to create a new Arca header")]
-    NewArcaHeader(#[from] NewArcaHeaderError),
+    ArcaHeader(#[from] ArcaHeaderError),
     #[error("Encountered an error trying to process a timestamp")]
     Time(#[from] std::time::SystemTimeError),
     #[error("Encountered an input/output error")]
@@ -21,11 +21,19 @@ pub enum FortivoError {
 }
 
 #[derive(Error, Debug)]
-pub enum NewArcaHeaderError {
+pub enum ArcaHeaderError {
+    #[error("Magic byte is invalid")]
+    MagicByteInvalid,
     #[error("Arca name is too long")]
     NameTooLong,
-    #[error("Timestamp is above current system time")]
-    TimestampAboveCurrentSystemTime
+    #[error("Name length field does not match actual name field length")]
+    NameLengthsDoNotMatch,
+    #[error("Timestamp/s is/are above current system time")]
+    TimestampAboveCurrentSystemTime,
+    #[error("Provided flags are not allowed in this engine version")]
+    FlagsNotAllowed,
+    #[error("Incompatible engine version")]
+    IncompatibleEngineVersion
 }
 
 impl ser::Error for FortivoError {

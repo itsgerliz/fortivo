@@ -1,6 +1,9 @@
 use std::{fs::File, path::{Path, PathBuf}, time::{SystemTime, UNIX_EPOCH}};
 use serde::{Deserialize, Serialize};
-use crate::error::{FortivoError, FortivoResult, NewArcaHeaderError};
+use crate::error::{FortivoError, FortivoResult, ArcaHeaderError};
+
+pub const ALLOWED_FLAGS: u16 = 0b0000_0000_0000_0000;
+pub const ENGINE_VERSION: [u64; 3] = [0, 1, 0];
 
 pub struct Arca<'a> {
     handle: File,
@@ -9,7 +12,7 @@ pub struct Arca<'a> {
 }
 
 impl<'a> Arca<'a> {
-    pub fn new<P: AsRef<Path>>(path: P) -> FortivoResult<Self> {
+    pub fn new<P: AsRef<Path>>(path: P, name: &[u8], flags: u16) -> FortivoResult<Self> {
         todo!()
     }
 
@@ -18,10 +21,8 @@ impl<'a> Arca<'a> {
     }
 }
 
-const ALLOWED_FLAGS: u16 = 0b0000_0000_0000_0000;
-
 #[derive(Serialize, Deserialize)]
-pub struct ArcaHeader<'a> {
+struct ArcaHeader<'a> {
     magic_byte: u8,
     name_length: u16, // Should not be > 512
     name: &'a [u8],
@@ -29,32 +30,67 @@ pub struct ArcaHeader<'a> {
     modification_date: u64,
     arcanum_count: u64,
     flags: u16,
+    engine_version: [u64; 3]
 }
 
 impl<'a> ArcaHeader<'a> {
-    pub fn new(name: &'a [u8], timestamp: u64, flags: u16) -> FortivoResult<Self> {
+    fn new(name: &'a [u8], flags: u16) -> FortivoResult<Self> {
         let name_length = name.len();
+        let current_time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
         if name_length > 512 {
-            return Err(FortivoError::from(NewArcaHeaderError::NameTooLong))
+            return Err(FortivoError::from(ArcaHeaderError::NameTooLong))
         }
 
-        if timestamp > SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() {
-            return Err(FortivoError::from(NewArcaHeaderError::TimestampAboveCurrentSystemTime))
+        if (flags & !ALLOWED_FLAGS) != 0 {
+            return Err(FortivoError::from(ArcaHeaderError::FlagsNotAllowed));
         }
-
-        if (!flags & ) // TODO
 
         Ok(
-            ArcaHeader {
+            Self {
                 magic_byte: 0xCF,
                 name_length: name_length as u16,
                 name: name,
-                creation_date: timestamp,
-                modification_date: timestamp,
+                creation_date: current_time,
+                modification_date: current_time,
                 arcanum_count: 0,
-                flags: flags
+                flags: flags,
+                engine_version: ENGINE_VERSION
             }
         )
+    }
+
+    fn validate(&self) -> FortivoResult<()> {
+        if self.magic_byte != 0xCF {
+            return Err(FortivoError::from(ArcaHeaderError::MagicByteInvalid))
+        }
+
+        if self.name_length > 512 {
+            return Err(FortivoError::from(ArcaHeaderError::NameTooLong))
+        }
+
+        if self.name_length as usize != self.name.len() {
+            return Err(FortivoError::from(ArcaHeaderError::NameLengthsDoNotMatch))
+        }
+
+        let current_time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+        if self.creation_date > current_time || self.modification_date > current_time {
+            return Err(FortivoError::from(ArcaHeaderError::TimestampAboveCurrentSystemTime))
+        }
+
+        // arcanum_count field has no validity check, it cannot be negative due to type
+        // bounds and checking if the Arcanum count in this Arca matches the arcanum_count
+        // would be a waste of time since one single Arca could theorethically contain
+        // up to 2^64 Arcanums
+
+        if (self.flags & !ALLOWED_FLAGS) != 0 {
+            return Err(FortivoError::from(ArcaHeaderError::FlagsNotAllowed))
+        }
+
+        if ENGINE_VERSION < self.engine_version {
+            return Err(FortivoError::from(ArcaHeaderError::IncompatibleEngineVersion))
+        }
+
+        Ok(())
     }
 }
