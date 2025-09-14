@@ -10,7 +10,7 @@ pub(crate) type FortivoResult<T> = Result<T, FortivoError>;
 pub enum FortivoError {
     #[error("Encountered an error trying to create a new Arca header")]
     ArcaHeader(#[from] ArcaHeaderError),
-    #[error("Encountered an error trying to process a timestamp")]
+    #[error("Encountered an error trying to manipulate timestamps")]
     Time(#[from] std::time::SystemTimeError),
     #[error("Encountered an input/output error")]
     IO(#[from] std::io::Error),
@@ -28,11 +28,11 @@ pub enum ArcaHeaderError {
     NameTooLong,
     #[error("Name length field does not match actual name field length")]
     NameLengthsDoNotMatch,
-    #[error("Timestamp/s is/are above current system time")]
+    #[error("Timestamp is above current system time")]
     TimestampAboveCurrentSystemTime,
     #[error("Provided flags are not allowed in this engine version")]
     FlagsNotAllowed,
-    #[error("Incompatible engine version")]
+    #[error("This Arca was created on a newer version of Fortivo, please upgrade")]
     IncompatibleEngineVersion
 }
 

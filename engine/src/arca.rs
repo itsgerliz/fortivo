@@ -1,31 +1,43 @@
-use std::{fs::File, path::{Path, PathBuf}, time::{SystemTime, UNIX_EPOCH}};
+use std::{fs::File, path::Path, time::{SystemTime, UNIX_EPOCH}};
 use serde::{Deserialize, Serialize};
-use crate::error::{FortivoError, FortivoResult, ArcaHeaderError};
+use crate::{error::{ArcaHeaderError, FortivoError, FortivoResult}, serde::deserializer::ArcaHeaderDeserializer};
 
 pub const ALLOWED_FLAGS: u16 = 0b0000_0000_0000_0000;
 pub const ENGINE_VERSION: [u64; 3] = [0, 1, 0];
 
-pub struct Arca<'a> {
+pub struct Arca {
     handle: File,
-    path: PathBuf,
-    header: ArcaHeader<'a>,
+    header: ArcaHeader,
 }
 
-impl<'a> Arca<'a> {
+impl Arca {
     pub fn new<P: AsRef<Path>>(path: P, name: &[u8], flags: u16) -> FortivoResult<Self> {
-        todo!()
+        Ok(
+            Self {
+                handle: File::create_new(path.as_ref())?,
+                header: ArcaHeader::new(name, flags)?
+            }
+        )
     }
 
     pub fn open<P: AsRef<Path>>(path: P) -> FortivoResult<Self> {
-        todo!()
+        let file_handle = File::options().read(true).write(true).open(path.as_ref())?;
+        let arca_header = ArcaHeader::deserialize(ArcaHeaderDeserializer { reader: &file_handle })?;
+
+        // TODO check valid header and construct
+        Ok(
+            Self {
+
+            }
+        )
     }
 }
 
 #[derive(Serialize, Deserialize)]
-struct ArcaHeader<'a> {
+struct ArcaHeader {
     magic_byte: u8,
-    name_length: u16, // Should not be > 512
-    name: &'a [u8],
+    name_length: u16,
+    name: Vec<u8>,
     creation_date: u64,
     modification_date: u64,
     arcanum_count: u64,
@@ -33,8 +45,8 @@ struct ArcaHeader<'a> {
     engine_version: [u64; 3]
 }
 
-impl<'a> ArcaHeader<'a> {
-    fn new(name: &'a [u8], flags: u16) -> FortivoResult<Self> {
+impl ArcaHeader {
+    fn new(name: &[u8], flags: u16) -> FortivoResult<Self> {
         let name_length = name.len();
         let current_time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
 
@@ -50,7 +62,7 @@ impl<'a> ArcaHeader<'a> {
             Self {
                 magic_byte: 0xCF,
                 name_length: name_length as u16,
-                name: name,
+                name: name.to_vec(),
                 creation_date: current_time,
                 modification_date: current_time,
                 arcanum_count: 0,
