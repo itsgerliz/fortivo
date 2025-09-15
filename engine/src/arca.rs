@@ -23,11 +23,12 @@ impl Arca {
     pub fn open<P: AsRef<Path>>(path: P) -> FortivoResult<Self> {
         let file_handle = File::options().read(true).write(true).open(path.as_ref())?;
         let arca_header = ArcaHeader::deserialize(ArcaHeaderDeserializer { reader: &file_handle })?;
+        arca_header.validate()?;
 
-        // TODO check valid header and construct
         Ok(
             Self {
-
+                handle: file_handle,
+                header: arca_header
             }
         )
     }
