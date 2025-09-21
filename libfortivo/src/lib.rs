@@ -3,4 +3,4 @@
 pub mod arca;
 pub mod error;
 
-mod serde;
+pub(crate) mod serde;
