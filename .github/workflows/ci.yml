@@ -17,6 +17,6 @@ jobs:
     - name: Checkout source
       uses: actions/checkout@v4
     - name: Check workspace members
-      run: cargo check --workspace --all-features --verbose
+      run: cargo check --workspace --all-features
     - name: Test workspace members
-      run: cargo test --workspace --all-features --verbose
+      run: cargo test --workspace --all-features
