@@ -21,7 +21,7 @@ jobs:
       run: |
         mkdir artifacts
         
-        for crate in engine core vault; do
+        for crate in libfortivo fortivo-core fortivo-vault; do
           echo "Building $crate..."
           cargo build --package $crate --release --all-features
           if [ -f target/release/$crate ]; then
