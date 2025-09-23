@@ -1,0 +1,54 @@
+name: CD
+
+on:
+  push:
+    branches: [ "master" ]
+    tags:
+      - "v*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+      
+    - name: Build workspace members
+      run: |
+        mkdir artifacts
+        
+        for crate in engine core vault; do
+          echo "Building $crate..."
+          cargo build --package $crate --release --all-features
+          if [ -f target/release/$crate ]; then
+            cp -v target/release/$crate artifacts/
+          fi
+        done
+        
+    - name: Publish artifacts to GitHub Releases
+      run: |
+        TAG_NAME="$GITHUB_REF_NAME"
+        
+        RELEASE_TITLE="$TAG_NAME"
+        RELEASE_NOTES=""
+
+        if [ -f "changelogs/$TAG_NAME.md" ]; then
+          RELEASE_NOTES=$(cat "changelogs/$TAG_NAME.md")
+        fi
+
+        RELEASE_NOTES="$RELEASE_NOTES# SHA512 checksums"$'\n'
+
+        for artifact in artifacts/*; do
+          FILENAME=$(basename "$artifact")
+          CHECKSUM=$(sha512sum "$artifact" | awk '{print $1}')
+          RELEASE_NOTES="$RELEASE_NOTES- \`$FILENAME\`: \`$CHECKSUM\`"$'\n'
+        done
+
+        gh release create "$TAG_NAME" artifacts/* \
+          --title "$RELEASE_TITLE" \
+          --notes "$RELEASE_NOTES"
+          
