@@ -1,3 +1,3 @@
 [workspace]
-members = ["engine"]
+members = ["libfortivo", "fortivo-core", "fortivo-vault"]
 resolver = "3"
