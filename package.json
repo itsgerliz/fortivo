@@ -1,0 +1,18 @@
+{
+  "name": "fortivo-website",
+  "version": "0.1.0",
+  "description": "Fortivo's website",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsgerliz/fortivo.git"
+  },
+  "author": "itsgerliz",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/itsgerliz/fortivo/issues"
+  },
+  "homepage": "https://github.com/itsgerliz/fortivo#readme"
+}
