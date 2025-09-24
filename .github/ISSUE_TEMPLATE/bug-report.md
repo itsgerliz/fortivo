@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Report a bug
-title: "(engine/cli/gui): This is a bug"
+title: "(engine/cli/gui/website): This is a bug"
 labels: bug
 assignees: 'itsgerliz'
 

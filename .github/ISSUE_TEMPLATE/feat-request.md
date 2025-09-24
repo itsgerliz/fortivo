@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Request a new feature
-title: "(engine/cli/gui): Request XXX feature"
+title: "(engine/cli/gui/website): Request XXX feature"
 labels: feat
 assignees: 'itsgerliz'
 
