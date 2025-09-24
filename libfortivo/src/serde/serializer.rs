@@ -2,8 +2,8 @@ use std::io::Write;
 use serde::{ser::Impossible, Serialize, Serializer};
 use crate::error::FortivoError;
 
-struct ArcaHeaderSerializer<W: Write> {
-	writer: W
+pub(crate) struct ArcaHeaderSerializer<W: Write> {
+	pub(crate) writer: W
 }
 
 impl<W: Write> Serializer for ArcaHeaderSerializer<W> {

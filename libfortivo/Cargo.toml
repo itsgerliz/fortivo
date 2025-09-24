@@ -3,6 +3,10 @@ name = "libfortivo"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+logging = ["dep:log"]
+
 [dependencies]
 serde = { version = "1.0.219", features = ["derive"] }
 thiserror = "2.0.12"
+log = { version = "0.4.28", optional = true }

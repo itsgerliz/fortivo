@@ -1,6 +1,6 @@
-use std::{fs::File, path::Path, time::{SystemTime, UNIX_EPOCH}};
+use std::{fs::File, io::{Seek, SeekFrom}, path::Path, time::{SystemTime, UNIX_EPOCH}};
 use serde::{Deserialize, Serialize};
-use crate::{error::{ArcaHeaderError, FortivoError, FortivoResult}, serde::deserializer::ArcaHeaderDeserializer};
+use crate::{error::{ArcaHeaderError, FortivoError, FortivoResult}, features::logging::{conditional_debug, conditional_trace}, serde::{deserializer::ArcaHeaderDeserializer, serializer::ArcaHeaderSerializer}};
 
 pub const ALLOWED_FLAGS: u16 = 0b0000_0000_0000_0000;
 pub const ENGINE_VERSION: [u64; 3] = [0, 1, 0];
@@ -12,18 +12,13 @@ pub struct Arca {
 
 impl Arca {
     pub fn new<P: AsRef<Path>>(path: P, name: &[u8], flags: u16) -> FortivoResult<Self> {
-        Ok(
-            Self {
-                handle: File::create_new(path.as_ref())?,
-                header: ArcaHeader::new(name, flags)?
-            }
-        )
-    }
+        let file_handle = File::create_new(path.as_ref())?;
+        conditional_trace!("Created file handle for new potential Arca");
 
-    pub fn open<P: AsRef<Path>>(path: P) -> FortivoResult<Self> {
-        let file_handle = File::options().read(true).write(true).open(path.as_ref())?;
-        let arca_header = ArcaHeader::deserialize(ArcaHeaderDeserializer { reader: &file_handle })?;
-        arca_header.validate()?;
+        let arca_header = ArcaHeader::new(name, flags)?;
+        conditional_trace!("Created new Arca header for new potential Arca");
+
+        conditional_debug!("Created a new Arca instance!");
 
         Ok(
             Self {
@@ -31,6 +26,38 @@ impl Arca {
                 header: arca_header
             }
         )
+    }
+
+    pub fn open<P: AsRef<Path>>(path: P) -> FortivoResult<Self> {
+        let file_handle = File::options().read(true).write(true).open(path.as_ref())?;
+        conditional_trace!("Created file handle for new potential Arca");
+
+        let arca_header = ArcaHeader::deserialize(ArcaHeaderDeserializer { reader: &file_handle })?;
+        conditional_trace!("Deserialized Arca header from existing Arca in filesystem, validating...");
+
+        arca_header.validate()?;
+        conditional_trace!("Validated deserialized Arca header");
+
+        conditional_debug!("Created a new Arca instance!");
+
+        Ok(
+            Self {
+                handle: file_handle,
+                header: arca_header
+            }
+        )
+    }
+
+    pub fn sync(&mut self) -> FortivoResult<()> {
+        self.handle.seek(SeekFrom::Start(0))?;
+        conditional_trace!("Seeking file handle to start");
+
+        self.header.serialize(ArcaHeaderSerializer { writer: &self.handle })?;
+        conditional_trace!("Writing the Arca header to filesystem");
+
+        conditional_debug!("Synced Arca instance to filesystem");
+
+        Ok(())
     }
 }
 
@@ -49,7 +76,10 @@ struct ArcaHeader {
 impl ArcaHeader {
     fn new(name: &[u8], flags: u16) -> FortivoResult<Self> {
         let name_length = name.len();
+        conditional_trace!("Getting provided name length...");
+
         let current_time = SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs();
+        conditional_trace!("Getting current system time...");
 
         if name_length > 512 {
             return Err(FortivoError::from(ArcaHeaderError::NameTooLong))

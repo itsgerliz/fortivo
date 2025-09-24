@@ -1,2 +1,2 @@
 pub(crate) mod deserializer;
-mod serializer;
+pub(crate) mod serializer;
