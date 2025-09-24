@@ -3,7 +3,7 @@ use serde::{de, ser};
 use thiserror::Error;
 
 /// Type alias for errors in this crate
-pub(crate) type FortivoResult<T> = Result<T, FortivoError>;
+pub type FortivoResult<T> = Result<T, FortivoError>;
 
 /// Main error type used by libfortivo
 #[derive(Error, Debug)]
