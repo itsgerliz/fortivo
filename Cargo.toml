@@ -1,3 +1,7 @@
 [workspace]
-members = ["libfortivo", "fortivo-core", "fortivo-vault"]
+members = [
+	"libfortivo",
+	"fortivo-core",
+	"fortivo-vault"
+]
 resolver = "3"
