@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "description": "Fortivo's website",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tailwindcss -i fortivo-website/src/styles/style.css -o fortivo-website/dist/styles/style.css -w",
+    "production": "tailwindcss -i fortivo-website/src/styles/style.css -o fortivo-website/dist/styles/style.css -m"
   },
   "repository": {
     "type": "git",
@@ -14,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/itsgerliz/fortivo/issues"
   },
-  "homepage": "https://github.com/itsgerliz/fortivo#readme"
+  "homepage": "https://github.com/itsgerliz/fortivo#readme",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.13",
+    "tailwindcss": "^4.1.13"
+  }
 }
